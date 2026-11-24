@@ -1,75 +1,64 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from .constants import NAME_MAX_LENGTH, STR_LENGTH_LIMIT, TITLE_MAX_LENGTH
 
 User = get_user_model()
 
-MAX_LENGTH = 256
-TITLE_LENGTH_LIMIT = 30
 
-
-class PublishedModel(models.Model):
+class IsPublishedCreatedAtAbstract(models.Model):
     """Абстрактная модель. Добавляет флаг публикации и время создания."""
 
     is_published = models.BooleanField(
+        'Опубликовано',
         default=True,
-        verbose_name='Опубликовано',
         help_text='Снимите галочку, чтобы скрыть публикацию.',
     )
     created_at = models.DateTimeField(
+        'Добавлено',
         auto_now_add=True,
-        verbose_name='Добавлено',
     )
 
     class Meta:
         abstract = True
 
 
-class Category(PublishedModel):
-    title = models.CharField(
-        max_length=MAX_LENGTH,
-        verbose_name='Заголовок',
-    )
-    description = models.TextField(verbose_name='Описание')
+class Category(IsPublishedCreatedAtAbstract):
+    title = models.CharField('Заголовок', max_length=TITLE_MAX_LENGTH)
+    description = models.TextField('Описание')
     slug = models.SlugField(
+        'Идентификатор',
         unique=True,
-        verbose_name='Идентификатор',
         help_text=(
             'Идентификатор страницы для URL; разрешены символы латиницы, '
             'цифры, дефис и подчёркивание.'
         ),
     )
 
-    class Meta(PublishedModel.Meta):
+    class Meta(IsPublishedCreatedAtAbstract.Meta):
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.title[:TITLE_LENGTH_LIMIT]
+        return self.title[:STR_LENGTH_LIMIT]
 
 
-class Location(PublishedModel):
-    name = models.CharField(
-        max_length=MAX_LENGTH,
-        verbose_name='Название места',
-    )
+class Location(IsPublishedCreatedAtAbstract):
+    name = models.CharField('Название места', max_length=NAME_MAX_LENGTH)
 
-    class Meta(PublishedModel.Meta):
+    class Meta(IsPublishedCreatedAtAbstract.Meta):
         verbose_name = 'местоположение'
         verbose_name_plural = 'Местоположения'
 
     def __str__(self):
-        return self.name
+        return self.name[:STR_LENGTH_LIMIT]
 
 
-class Post(PublishedModel):
-    title = models.CharField(
-        max_length=MAX_LENGTH,
-        verbose_name='Заголовок',
-    )
-    text = models.TextField(verbose_name='Текст')
+class Post(IsPublishedCreatedAtAbstract):
+    title = models.CharField('Заголовок', max_length=TITLE_MAX_LENGTH)
+    text = models.TextField('Текст')
     pub_date = models.DateTimeField(
-        verbose_name='Дата и время публикации',
+        'Дата и время публикации',
         help_text=(
             'Если установить дату и время в будущем — '
             'можно делать отложенные публикации.'
@@ -95,9 +84,10 @@ class Post(PublishedModel):
     )
 
     class Meta:
+        default_related_name = 'posts'
         ordering = ('-pub_date',)
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
 
     def __str__(self):
-        return self.title
+        return self.title[:STR_LENGTH_LIMIT]

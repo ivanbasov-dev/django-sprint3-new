@@ -1,14 +1,13 @@
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 
+from .constants import POSTS_ON_INDEX
 from .models import Category, Post
 
-POSTS_ON_INDEX = 5
 
-
-def get_published_posts():
-    """Возвращает QuerySet опубликованных постов."""
-    return Post.objects.select_related(
+def filter_posts_by_publication(posts):
+    """Оставляет только опубликованные посты."""
+    return posts.select_related(
         'category', 'location', 'author'
     ).filter(
         is_published=True,
@@ -18,18 +17,18 @@ def get_published_posts():
 
 
 def index(request):
-    post_list = get_published_posts()[:POSTS_ON_INDEX]
-    context = {'post_list': post_list}
-    return render(request, 'blog/index.html', context)
+    post_list = filter_posts_by_publication(
+        Post.objects.all()
+    )[:POSTS_ON_INDEX]
+    return render(request, 'blog/index.html', {'post_list': post_list})
 
 
-def post_detail(request, id):
+def post_detail(request, post_id):
     post = get_object_or_404(
-        get_published_posts(),
-        pk=id,
+        filter_posts_by_publication(Post.objects.all()),
+        pk=post_id,
     )
-    context = {'post': post}
-    return render(request, 'blog/detail.html', context)
+    return render(request, 'blog/detail.html', {'post': post})
 
 
 def category_posts(request, category_slug):
@@ -38,9 +37,7 @@ def category_posts(request, category_slug):
         slug=category_slug,
         is_published=True,
     )
-    post_list = get_published_posts().filter(category=category)
-    context = {
+    return render(request, 'blog/category.html', {
         'category': category,
-        'post_list': post_list,
-    }
-    return render(request, 'blog/category.html', context)
+        'post_list': filter_posts_by_publication(category.posts.all()),
+    })
