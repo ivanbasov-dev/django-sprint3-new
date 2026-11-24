@@ -150,5 +150,6 @@ media/
 
 # Папки с исходниками от Практикума и статикой
 static/
+static_dev/
 static-dev/
 html/
