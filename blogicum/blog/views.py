@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render
-from django.utils import timezone
+from django.utils.timezone import now
 
 from .constants import POSTS_ON_INDEX
 from .models import Category, Post
@@ -12,7 +12,7 @@ def filter_posts_by_publication(posts):
     ).filter(
         is_published=True,
         category__is_published=True,
-        pub_date__lte=timezone.now(),
+        pub_date__lte=now(),
     )
 
 
@@ -37,7 +37,8 @@ def category_posts(request, category_slug):
         slug=category_slug,
         is_published=True,
     )
+    post_list = filter_posts_by_publication(category.posts.all())
     return render(request, 'blog/category.html', {
         'category': category,
-        'post_list': filter_posts_by_publication(category.posts.all()),
+        'post_list': post_list,
     })

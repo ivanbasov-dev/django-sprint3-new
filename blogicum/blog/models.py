@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from .constants import NAME_MAX_LENGTH, STR_LENGTH_LIMIT, TITLE_MAX_LENGTH
+from .constants import CHAR_FIELD_MAX_LENGTH, STR_LENGTH_LIMIT
 
 User = get_user_model()
 
@@ -24,7 +24,10 @@ class IsPublishedCreatedAtAbstract(models.Model):
 
 
 class Category(IsPublishedCreatedAtAbstract):
-    title = models.CharField('Заголовок', max_length=TITLE_MAX_LENGTH)
+    title = models.CharField(
+        'Заголовок',
+        max_length=CHAR_FIELD_MAX_LENGTH,
+    )
     description = models.TextField('Описание')
     slug = models.SlugField(
         'Идентификатор',
@@ -44,7 +47,10 @@ class Category(IsPublishedCreatedAtAbstract):
 
 
 class Location(IsPublishedCreatedAtAbstract):
-    name = models.CharField('Название места', max_length=NAME_MAX_LENGTH)
+    name = models.CharField(
+        'Название места',
+        max_length=CHAR_FIELD_MAX_LENGTH,
+    )
 
     class Meta(IsPublishedCreatedAtAbstract.Meta):
         verbose_name = 'местоположение'
@@ -55,7 +61,10 @@ class Location(IsPublishedCreatedAtAbstract):
 
 
 class Post(IsPublishedCreatedAtAbstract):
-    title = models.CharField('Заголовок', max_length=TITLE_MAX_LENGTH)
+    title = models.CharField(
+        'Заголовок',
+        max_length=CHAR_FIELD_MAX_LENGTH,
+    )
     text = models.TextField('Текст')
     pub_date = models.DateTimeField(
         'Дата и время публикации',
